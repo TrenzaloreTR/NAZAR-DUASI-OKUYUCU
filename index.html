@@ -94,6 +94,14 @@
             border-top: 1px solid #ecf0f1;
             padding-top: 12px;
         }
+        .warning {
+            color: #e67e22;
+            font-size: 13px;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            max-width: 400px;
+        }
     </style>
 </head>
 <body>
@@ -105,6 +113,9 @@
         <button class="play-btn" onclick="togglePrayers()" id="playButton">
             <span id="btnIcon">▶</span> <span id="btnText">Tümünü Sesli Oku</span>
         </button>
+        <div class="warning" id="voiceWarning" style="display: none;">
+            Uyarı: Cihazınızda erkek Arapça sesi bulunamadı. Lütfen telefonunuzun erişilebilirlik/okuma ayarlarından 'Tarik', 'Maged' veya 'Naayf' gibi bir erkek sesi indirin.
+        </div>
     </div>
 
     <div class="dua-card">
@@ -132,14 +143,12 @@
         let isPlaying = false;
         let currentUtterance = null;
         
-        // Dua metinlerinin sadece Arapça kısımları
         const prayers = [
             "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ",
             "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
             "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ"
         ];
 
-        // Tarayıcıdaki ses listesini önceden yüklemek için tetikleyici
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
         }
@@ -148,8 +157,8 @@
             const playButton = document.getElementById("playButton");
             const btnIcon = document.getElementById("btnIcon");
             const btnText = document.getElementById("btnText");
+            const voiceWarning = document.getElementById("voiceWarning");
 
-            // Eğer şu an çalıyorsa durdur
             if (isPlaying) {
                 window.speechSynthesis.cancel();
                 isPlaying = false;
@@ -159,17 +168,16 @@
                 return;
             }
 
-            // Cihaz TTS desteklemiyorsa uyar
             if (!('speechSynthesis' in window)) {
                 alert("Tarayıcınız sesli okuma özelliğini desteklemiyor.");
                 return;
             }
 
-            // Oynatma moduna geç
             isPlaying = true;
             playButton.classList.add("playing");
             btnIcon.innerText = "■";
             btnText.innerText = "Durdur";
+            voiceWarning.style.display = "none";
             
             let i = 0;
 
@@ -177,29 +185,52 @@
                 if (i < prayers.length && isPlaying) {
                     currentUtterance = new SpeechSynthesisUtterance(prayers[i]);
                     currentUtterance.lang = 'ar-SA';
-                    currentUtterance.rate = 0.75; // Duaların anlaşılır olması için hızı yavaşlatıyoruz
-                    currentUtterance.pitch = 0.8; // Erkek sesine yaklaşması için tonu kalınlaştırıyoruz
+                    currentUtterance.rate = 0.75; 
+                    currentUtterance.pitch = 0.9; 
 
                     let voices = window.speechSynthesis.getVoices();
                     let arVoices = voices.filter(v => v.lang.startsWith('ar'));
                     
-                    if(arVoices.length > 0) {
-                        // İşletim sisteminde erkek sesi varsa (Male, Maged, Tarik) onu bul
-                        let maleVoice = arVoices.find(v => 
-                            v.name.toLowerCase().includes('male') || 
-                            v.name.toLowerCase().includes('maged') || 
-                            v.name.toLowerCase().includes('tarik')
-                        );
-                        currentUtterance.voice = maleVoice ? maleVoice : arVoices[0];
+                    let targetVoice = null;
+                    
+                    // Bilinen erkek sesleri ve kesin bilinen kadın sesleri
+                    const maleNames = ['maged', 'tarik', 'naayf', 'hamed', 'erkek', 'male', 'mac'];
+                    const femaleNames = ['laila', 'hoda', 'amina', 'salma', 'zeina', 'female', 'kadın', 'zira', 'siri'];
+
+                    // 1. Aşama: İsminde kesinlikle erkek belirteci olanları bul
+                    for (let v of arVoices) {
+                        let nameLower = v.name.toLowerCase();
+                        let isMale = maleNames.some(m => nameLower.includes(m));
+                        let isFemale = femaleNames.some(f => nameLower.includes(f));
+
+                        if (isMale && !isFemale) {
+                            targetVoice = v;
+                            break;
+                        }
+                    }
+
+                    // 2. Aşama: Erkek bulamadıysa, en azından isminde kadın belirteci OLMAYAN bir ses seç
+                    if (!targetVoice) {
+                        targetVoice = arVoices.find(v => {
+                            let nameLower = v.name.toLowerCase();
+                            return !femaleNames.some(f => nameLower.includes(f));
+                        });
+                    }
+
+                    // 3. Aşama: Hala bir ses seçilemediyse cihazda hiç erkek Arapça sesi yüklü değildir.
+                    if (targetVoice) {
+                        currentUtterance.voice = targetVoice;
+                    } else if (arVoices.length > 0) {
+                        currentUtterance.voice = arVoices[0];
+                        voiceWarning.style.display = "block"; // Ekrana uyarı ver
+                    } else {
+                        voiceWarning.style.display = "block"; // Arapça ses paketi hiç yok
                     }
 
                     currentUtterance.onend = function() {
                         i++;
-                        // Her dua bitiminde 1 saniye dinlenme (es) süresi
                         if(isPlaying) {
-                            setTimeout(() => {
-                                speakNext();
-                            }, 1000); 
+                            setTimeout(() => { speakNext(); }, 1000); 
                         }
                     };
 
@@ -221,7 +252,7 @@
                 btnText.innerText = "Tümünü Sesli Oku";
             }
 
-            window.speechSynthesis.cancel(); // Önceki okumaları sıfırla
+            window.speechSynthesis.cancel();
             speakNext();
         }
     </script>
