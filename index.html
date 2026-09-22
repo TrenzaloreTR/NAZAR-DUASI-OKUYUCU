@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Evden Çıkış Duaları</title>
+    <title>Koruyucu Dualar ve Zikirler</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -63,6 +63,19 @@
             width: 100%;
             max-width: 500px;
             box-sizing: border-box;
+            position: relative;
+        }
+        .repeat-badge {
+            position: absolute;
+            top: -10px;
+            left: 20px;
+            background-color: #3498db;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .arabic {
             font-family: 'Amiri', 'Traditional Arabic', Arial, serif;
@@ -72,6 +85,7 @@
             color: #1a1a1a;
             margin-bottom: 20px;
             line-height: 1.8;
+            margin-top: 15px;
         }
         .transliteration {
             font-weight: 600;
@@ -107,47 +121,83 @@
 <body>
 
     <div class="header">
-        <h2>Koruyucu Dualar</h2>
+        <h2>Koruyucu Dualar ve Zikirler</h2>
         <p>Evden çıkmadan önce sesli dinleyin.</p>
         
         <button class="play-btn" onclick="togglePrayers()" id="playButton">
             <span id="btnIcon">▶</span> <span id="btnText">Tümünü Sesli Oku</span>
         </button>
         <div class="warning" id="voiceWarning" style="display: none;">
-            Uyarı: Cihazınızda erkek Arapça sesi bulunamadı. Lütfen telefonunuzun erişilebilirlik/okuma ayarlarından 'Tarik', 'Maged' veya 'Naayf' gibi bir erkek sesi indirin.
+            Uyarı: Cihazınızda erkek Arapça sesi bulunamadı. Lütfen ayarlardan indirin.
         </div>
     </div>
 
+    <!-- 1. Dua -->
     <div class="dua-card">
         <div class="arabic">أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ</div>
         <div class="transliteration">Okunuşu: Eûzu bikelimâtillâhi't-tâmmeti min külli şeytânin ve hâmmeh ve min külli 'aynin lâmmeh.</div>
-        <div class="meaning">Anlamı: Her tür şeytandan, haşereden, kem nazardan Allah’ın tam kelimelerine (sonsuz iradesine ve hükmüne) sığınırım.</div>
-        <div class="source">Kaynak: (Buhârî, Enbiyâ, 10)</div>
+        <div class="meaning">Anlamı: Her tür şeytandan, haşereden, kem nazardan Allah’ın tam kelimelerine sığınırım.</div>
     </div>
 
+    <!-- 2. Dua -->
     <div class="dua-card">
         <div class="arabic">بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ</div>
         <div class="transliteration">Okunuşu: Bismillâhillezî lâ yedurru ma'asmihî şey'ün fi'l-ardı ve lâ fi's-semâ'i ve hüve's-semî'u'l-'alîm.</div>
-        <div class="meaning">Anlamı: Adı anıldığı zaman gerek yerde gerekse gökte hiçbir şeyin zarar veremeyeceği Allah’ın adıyla! O, hakkıyla işiten ve hakkıyla bilendir.</div>
-        <div class="source">Kaynak: (Tirmizî, Deavât, 13; Ebû Dâvûd, Edeb, 101)</div>
+        <div class="meaning">Anlamı: Adı anıldığı zaman gerek yerde gerekse gökte hiçbir şeyin zarar veremeyeceği Allah’ın adıyla!</div>
     </div>
 
+    <!-- 3. Dua -->
     <div class="dua-card">
         <div class="arabic">حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ</div>
         <div class="transliteration">Okunuşu: Hasbiyallâhu lâ ilâhe illâ hû, 'aleyhi tevekkeltü ve hüve rabbü'l-'arşi'l-'azîm.</div>
-        <div class="meaning">Anlamı: Bana Allah yeter; O'ndan başka hiçbir ilah yoktur. Ben yalnızca O'na tevekkül ettim. O, yüce Arş'ın Rabbidir.</div>
-        <div class="source">Kaynak: Kuran-ı Kerim - Tevbe Sûresi - 129.Ayet</div>
+        <div class="meaning">Anlamı: Bana Allah yeter; O'ndan başka hiçbir ilah yoktur.</div>
+    </div>
+
+    <!-- 4. Dua -->
+    <div class="dua-card">
+        <div class="arabic">اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ</div>
+        <div class="transliteration">Okunuşu: Allâhummekfinî bi halâlike an harâmike ve ağninî bi fadlike ammen sivâke.</div>
+        <div class="meaning">Anlamı: Allah'ım! Bana helâl rızkından nasip ederek haramlardan koru!</div>
+    </div>
+
+    <!-- 5. Zikir (10 Tekrar) -->
+    <div class="dua-card">
+        <div class="repeat-badge">10 Tekrar</div>
+        <div class="arabic">سُبْحَانَ اللَّهِ وَبِحَمْدِهِ</div>
+        <div class="transliteration">Okunuşu: Sübhânallâhi ve bihamdihî.</div>
+        <div class="meaning">Anlamı: Allah'ı tesbih ederim ve O'na hamd ederim.</div>
+        <div class="source">Fazileti: Günahları denizlerin köpüğü kadar olsa silinir.</div>
+    </div>
+
+    <!-- 6. Zikir (3 Tekrar) -->
+    <div class="dua-card">
+        <div class="repeat-badge">3 Tekrar</div>
+        <div class="arabic">سُبْحَانَ اللَّهِ الْعَظِيمِ وَبِحَمْدِهِ</div>
+        <div class="transliteration">Okunuşu: Sübhânallâhil azîm ve bihamdihî.</div>
+        <div class="meaning">Anlamı: Yüce Allah'ı tesbih ederim ve O'na hamd ederim.</div>
+        <div class="source">Fazileti: Cennette bir hurma ağacı diktirir.</div>
     </div>
 
     <script>
         let isPlaying = false;
-        let currentUtterance = null;
         
-        const prayers = [
-            "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ",
-            "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ",
-            "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ"
+        // Metinler ve okunma sayıları
+        const playlist = [
+            { text: "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّةِ مِنْ كُلِّ شَيْطَانٍ وَهَامَّةٍ وَمِنْ كُلِّ عَيْنٍ لَامَّةٍ", count: 1 },
+            { text: "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ", count: 1 },
+            { text: "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ", count: 1 },
+            { text: "اللَّهُمَّ اكْفِنِي بِحَلَالِكَ عَنْ حَرَامِكَ، وَأَغْنِنِي بِفَضْلِكَ عَمَّنْ سِوَاكَ", count: 1 },
+            { text: "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ", count: 10 },
+            { text: "سُبْحَانَ اللَّهِ الْعَظِيمِ وَبِحَمْدِهِ", count: 3 }
         ];
+
+        // Oynatma listesini düz (tek boyutlu) bir diziye dönüştürüyoruz (tekrarları açarak)
+        let flatPlaylist = [];
+        playlist.forEach(item => {
+            for (let i = 0; i < item.count; i++) {
+                flatPlaylist.push(item.text);
+            }
+        });
 
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
@@ -182,8 +232,8 @@
             let i = 0;
 
             function speakNext() {
-                if (i < prayers.length && isPlaying) {
-                    currentUtterance = new SpeechSynthesisUtterance(prayers[i]);
+                if (i < flatPlaylist.length && isPlaying) {
+                    let currentUtterance = new SpeechSynthesisUtterance(flatPlaylist[i]);
                     currentUtterance.lang = 'ar-SA';
                     currentUtterance.rate = 0.75; 
                     currentUtterance.pitch = 0.9; 
@@ -193,11 +243,9 @@
                     
                     let targetVoice = null;
                     
-                    // Bilinen erkek sesleri ve kesin bilinen kadın sesleri
                     const maleNames = ['maged', 'tarik', 'naayf', 'hamed', 'erkek', 'male', 'mac'];
                     const femaleNames = ['laila', 'hoda', 'amina', 'salma', 'zeina', 'female', 'kadın', 'zira', 'siri'];
 
-                    // 1. Aşama: İsminde kesinlikle erkek belirteci olanları bul
                     for (let v of arVoices) {
                         let nameLower = v.name.toLowerCase();
                         let isMale = maleNames.some(m => nameLower.includes(m));
@@ -209,7 +257,6 @@
                         }
                     }
 
-                    // 2. Aşama: Erkek bulamadıysa, en azından isminde kadın belirteci OLMAYAN bir ses seç
                     if (!targetVoice) {
                         targetVoice = arVoices.find(v => {
                             let nameLower = v.name.toLowerCase();
@@ -217,14 +264,13 @@
                         });
                     }
 
-                    // 3. Aşama: Hala bir ses seçilemediyse cihazda hiç erkek Arapça sesi yüklü değildir.
                     if (targetVoice) {
                         currentUtterance.voice = targetVoice;
                     } else if (arVoices.length > 0) {
                         currentUtterance.voice = arVoices[0];
-                        voiceWarning.style.display = "block"; // Ekrana uyarı ver
+                        voiceWarning.style.display = "block"; 
                     } else {
-                        voiceWarning.style.display = "block"; // Arapça ses paketi hiç yok
+                        voiceWarning.style.display = "block"; 
                     }
 
                     currentUtterance.onend = function() {
