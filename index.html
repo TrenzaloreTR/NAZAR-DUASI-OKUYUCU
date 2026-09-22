@@ -18,6 +18,7 @@
         .header {
             text-align: center;
             margin-bottom: 25px;
+            width: 100%;
         }
         .header h2 {
             margin: 0 0 10px 0;
@@ -27,24 +28,33 @@
             margin: 0;
             color: #7f8c8d;
         }
+        .controls-container {
+            width: 100%;
+            max-width: 320px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
         .play-btn {
             background-color: #27ae60;
             color: white;
             border: none;
             border-radius: 50px;
-            padding: 16px 32px;
+            padding: 16px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
             transition: all 0.3s ease;
             width: 100%;
-            max-width: 320px;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 12px;
-            margin: 20px auto;
+            margin-bottom: 20px;
         }
         .play-btn:active {
             background-color: #219653;
@@ -53,6 +63,26 @@
         .play-btn.playing {
             background-color: #e74c3c;
             box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        .slider-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+        input[type=range] {
+            width: 100%;
+            accent-color: #27ae60;
+        }
+        .speed-label {
+            font-size: 14px;
+            color: #34495e;
+            font-weight: 600;
+        }
+        .speed-value {
+            color: #27ae60;
+            font-weight: bold;
         }
         .dua-card {
             background: white;
@@ -108,14 +138,6 @@
             border-top: 1px solid #ecf0f1;
             padding-top: 12px;
         }
-        .warning {
-            color: #e67e22;
-            font-size: 13px;
-            text-align: center;
-            margin-top: -10px;
-            margin-bottom: 15px;
-            max-width: 400px;
-        }
     </style>
 </head>
 <body>
@@ -124,11 +146,15 @@
         <h2>Koruyucu Dualar ve Zikirler</h2>
         <p>Evden çıkmadan önce sesli dinleyin.</p>
         
-        <button class="play-btn" onclick="togglePrayers()" id="playButton">
-            <span id="btnIcon">▶</span> <span id="btnText">Tümünü Sesli Oku</span>
-        </button>
-        <div class="warning" id="voiceWarning" style="display: none;">
-            Uyarı: Cihazınızda erkek Arapça sesi bulunamadı. Lütfen ayarlardan indirin.
+        <div class="controls-container">
+            <button class="play-btn" onclick="togglePrayers()" id="playButton">
+                <span id="btnIcon">▶</span> <span id="btnText">Tümünü Sesli Oku</span>
+            </button>
+            
+            <div class="slider-container">
+                <label for="speedSlider" class="speed-label">Okuma Hızı: <span class="speed-value" id="speedValue">0.8x</span></label>
+                <input type="range" id="speedSlider" min="0.5" max="1.5" step="0.1" value="0.8">
+            </div>
         </div>
     </div>
 
@@ -180,6 +206,8 @@
 
     <script>
         let isPlaying = false;
+        let currentAudio = null;
+        let currentIndex = 0;
         
         // Metinler ve okunma sayıları
         const playlist = [
@@ -191,7 +219,7 @@
             { text: "سُبْحَانَ اللَّهِ الْعَظِيمِ وَبِحَمْدِهِ", count: 3 }
         ];
 
-        // Oynatma listesini düz (tek boyutlu) bir diziye dönüştürüyoruz (tekrarları açarak)
+        // Oynatma listesini düz diziye dönüştürüyoruz
         let flatPlaylist = [];
         playlist.forEach(item => {
             for (let i = 0; i < item.count; i++) {
@@ -199,108 +227,84 @@
             }
         });
 
-        if (speechSynthesis.onvoiceschanged !== undefined) {
-            speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-        }
-
         function togglePrayers() {
             const playButton = document.getElementById("playButton");
             const btnIcon = document.getElementById("btnIcon");
             const btnText = document.getElementById("btnText");
-            const voiceWarning = document.getElementById("voiceWarning");
 
             if (isPlaying) {
-                window.speechSynthesis.cancel();
-                isPlaying = false;
-                playButton.classList.remove("playing");
-                btnIcon.innerText = "▶";
-                btnText.innerText = "Tümünü Sesli Oku";
-                return;
-            }
-
-            if (!('speechSynthesis' in window)) {
-                alert("Tarayıcınız sesli okuma özelliğini desteklemiyor.");
+                if(currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+                resetButton();
                 return;
             }
 
             isPlaying = true;
+            currentIndex = 0;
             playButton.classList.add("playing");
             btnIcon.innerText = "■";
             btnText.innerText = "Durdur";
-            voiceWarning.style.display = "none";
             
-            let i = 0;
-
-            function speakNext() {
-                if (i < flatPlaylist.length && isPlaying) {
-                    let currentUtterance = new SpeechSynthesisUtterance(flatPlaylist[i]);
-                    currentUtterance.lang = 'ar-SA';
-                    currentUtterance.rate = 0.75; 
-                    currentUtterance.pitch = 0.9; 
-
-                    let voices = window.speechSynthesis.getVoices();
-                    let arVoices = voices.filter(v => v.lang.startsWith('ar'));
-                    
-                    let targetVoice = null;
-                    
-                    const maleNames = ['maged', 'tarik', 'naayf', 'hamed', 'erkek', 'male', 'mac'];
-                    const femaleNames = ['laila', 'hoda', 'amina', 'salma', 'zeina', 'female', 'kadın', 'zira', 'siri'];
-
-                    for (let v of arVoices) {
-                        let nameLower = v.name.toLowerCase();
-                        let isMale = maleNames.some(m => nameLower.includes(m));
-                        let isFemale = femaleNames.some(f => nameLower.includes(f));
-
-                        if (isMale && !isFemale) {
-                            targetVoice = v;
-                            break;
-                        }
-                    }
-
-                    if (!targetVoice) {
-                        targetVoice = arVoices.find(v => {
-                            let nameLower = v.name.toLowerCase();
-                            return !femaleNames.some(f => nameLower.includes(f));
-                        });
-                    }
-
-                    if (targetVoice) {
-                        currentUtterance.voice = targetVoice;
-                    } else if (arVoices.length > 0) {
-                        currentUtterance.voice = arVoices[0];
-                        voiceWarning.style.display = "block"; 
-                    } else {
-                        voiceWarning.style.display = "block"; 
-                    }
-
-                    currentUtterance.onend = function() {
-                        i++;
-                        if(isPlaying) {
-                            setTimeout(() => { speakNext(); }, 1000); 
-                        }
-                    };
-
-                    currentUtterance.onerror = function(e) {
-                        console.error("Okuma hatası:", e);
-                        resetButton();
-                    }
-
-                    window.speechSynthesis.speak(currentUtterance);
-                } else {
-                    resetButton();
-                }
-            }
-            
-            function resetButton() {
-                isPlaying = false;
-                playButton.classList.remove("playing");
-                btnIcon.innerText = "▶";
-                btnText.innerText = "Tümünü Sesli Oku";
-            }
-
-            window.speechSynthesis.cancel();
             speakNext();
         }
+
+        function speakNext() {
+            if (currentIndex < flatPlaylist.length && isPlaying) {
+                let text = flatPlaylist[currentIndex];
+                // İnternet üzerinden tamamen online çalışan Google TTS servisine istek atıyoruz
+                let url = "https://translate.google.com/translate_tts?ie=UTF-8&tl=ar&client=tw-ob&q=" + encodeURIComponent(text);
+                
+                currentAudio = new Audio(url);
+                let speed = document.getElementById("speedSlider").value;
+                currentAudio.playbackRate = parseFloat(speed);
+                
+                currentAudio.onended = function() {
+                    currentIndex++;
+                    if(isPlaying) {
+                        setTimeout(() => { speakNext(); }, 1000); // Dualar arası 1 saniye bekleme
+                    }
+                };
+
+                currentAudio.onerror = function() {
+                    console.error("Ses yüklenemedi. Lütfen internet bağlantınızı kontrol edin.");
+                    currentIndex++;
+                    if(isPlaying) {
+                        speakNext(); // Hata olursa bir sonrakine geç
+                    }
+                };
+
+                currentAudio.play().catch(e => {
+                    console.error("Otomatik oynatma engellendi veya hata oluştu:", e);
+                    resetButton();
+                });
+            } else {
+                resetButton();
+            }
+        }
+        
+        function resetButton() {
+            isPlaying = false;
+            currentIndex = 0;
+            const playButton = document.getElementById("playButton");
+            const btnIcon = document.getElementById("btnIcon");
+            const btnText = document.getElementById("btnText");
+            playButton.classList.remove("playing");
+            btnIcon.innerText = "▶";
+            btnText.innerText = "Tümünü Sesli Oku";
+        }
+
+        // Hız çubuğu (slider) dinleyicisi
+        document.getElementById("speedSlider").addEventListener("input", function(e) {
+            let selectedSpeed = parseFloat(e.target.value).toFixed(1);
+            document.getElementById("speedValue").innerText = selectedSpeed + "x";
+            
+            // Eğer o an okunan bir ses varsa, hızını anında değiştir
+            if(currentAudio && isPlaying) {
+                currentAudio.playbackRate = parseFloat(selectedSpeed);
+            }
+        });
     </script>
 </body>
 </html>
